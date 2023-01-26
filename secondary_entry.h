@@ -9,7 +9,7 @@
 #define secondary_entry_h
 
 #include <stdio.h>
-#include "struct.h"
+#include "structs.h"
 void encode_instruction(sentence * curr);
 void encode_immediate_operand(int oper);
 int encode_jump(sentence *currsentence);

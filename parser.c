@@ -819,17 +819,20 @@ void verify_operands(sentence *parsed, char *line, int last_position, int line_n
         *syntax_errors = TRUE;
         return;
     }
-    else if(parsed->is_jump) { /* @TODO Test this */
+    else if(parsed->is_jump && (strstr(line, "(") != NULL && strstr(line, ")") != NULL)) { 
         int i = get_jump_operands(parsed, line, syntax_errors);
+
+        printf("%d\t\t %s", i, line);
         if ((i + 1) == strlen(line)) {   
              printf("%d", i);
              return; 
-             }
+        }
         else {
             fprintf(stderr, "Error in line %d - unexpected comma\n", line_number);
             *syntax_errors = TRUE;
             return;
         }
+  
     }
 
     new_position = skip_spaces(line, last_position);
@@ -880,14 +883,24 @@ void verify_operands(sentence *parsed, char *line, int last_position, int line_n
 
     if (operands_in_sentence == 1) /* if only a single operand was found, the operand is stored as destination */
     {
-
+        if(parsed->is_jump) {
+            strcpy(parsed->dest_operand_type, JUMP_OPERAND_TYPE);
+            strcpy(parsed->source_operand_type, "");
+            strcpy(parsed->operand_2, "");
+            strcpy(parsed->operand_1, "");
+            parsed->immediate_operand_b = FALSE;
+            parsed->immediate_operand_a = FALSE;
+            if (validate_operand_for_opcode(parsed, temp_operand_type_a, -999, operands_in_sentence, line_number, syntax_errors))
+                convert_dec_to_x_bit_binary(temp_operand_type_a, 3, parsed->dest_operand_type); /* VERIFY THE FUNCTION IS CORRECT */
+            else
+                return;
+            return;
+        }
         strcpy(parsed->dest_operand_type, parsed->source_operand_type); /* 3 places so '\0' can be added - miunim */
         strcpy(parsed->source_operand_type, "");
         strcpy(parsed->operand_2, parsed->operand_1); /* for variables, registers, matrixes */
         strcpy(parsed->operand_1, "");
         parsed->immediate_operand_b = parsed->immediate_operand_a; /* when we have "#" */
-        /* strcpy(parsed->matrix_row_operand_b, parsed->matrix_row_operand_a)
-        strcpy(parsed->matrix_col_operand_a, ""); */
         if (validate_operand_for_opcode(parsed, temp_operand_type_a, -999, operands_in_sentence, line_number, syntax_errors))
             convert_dec_to_x_bit_binary(temp_operand_type_a, 3, parsed->dest_operand_type); /* VERIFY THE FUNCTION IS CORRECT */
         else

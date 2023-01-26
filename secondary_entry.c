@@ -87,6 +87,8 @@ void encode_direct_operand(char *oper)
     char arr[9];
     memory_word *new_memory_word = create_new_memory_word();
     symbol_line *sl = get_symbol_line_from_symbol_table(oper);
+    printf("Address: %d, bits: %s ARE: %s (line %d)\n", ic_second_pass, arr, RELOCATABLE_ARE, line_number);
+    printf("Symbol: %s, address: %d (line %d)\n", oper, sl->address, line_number);
     if (sl)
     {
         new_memory_word->address = ic_second_pass;

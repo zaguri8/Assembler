@@ -21,7 +21,7 @@ int PreAssembler_CloseFiles_Success(FILE *file)
     {
         printf("[Error] error closing file.\n");
     }
-    return 0;
+    return 1;
 }
 int PreAssembler_CloseFile_Failure(FILE *file, const char* file_name)
 {
@@ -33,7 +33,7 @@ int PreAssembler_CloseFile_Failure(FILE *file, const char* file_name)
 int PreAssembler_CompareStrings_IgnoreSpace(const char* s1, const char* s2) {
     int i = 0, j = 0;
 
-    // Skip leading spaces in both strings
+    /* Skip leading spaces in both strings */
     while (isspace(s1[i])) {
         i++;
     }
@@ -41,7 +41,7 @@ int PreAssembler_CompareStrings_IgnoreSpace(const char* s1, const char* s2) {
         j++;
     }
 
-    // Compare the rest of the strings
+    /* Compare the rest of the strings */
     while (s1[i] != '\0' && s2[j] != '\0') {
         if (s1[i] != s2[j]) {
             return s1[i] - s2[j];
@@ -50,7 +50,7 @@ int PreAssembler_CompareStrings_IgnoreSpace(const char* s1, const char* s2) {
         j++;
     }
 
-    // Check for trailing spaces in both strings
+    /* Check for trailing spaces in both strings */
     while (isspace(s1[i])) {
         i++;
     }
@@ -58,15 +58,15 @@ int PreAssembler_CompareStrings_IgnoreSpace(const char* s1, const char* s2) {
         j++;
     }
 
-    // If both strings are equal, return 0
+    /* If both strings are equal, return 0 */
     if (s1[i] == '\0' && s2[j] == '\0') {
         return 0;
     }
-    // If s1 is longer than s2, return 1
+    /* If s1 is longer than s2, return 1 */
     if (s1[i] != '\0') {
         return 1;
     }
-    // If s2 is longer than s1, return -1
+    /* If s2 is longer than s1, return -1 */
     return -1;
 }
 
@@ -150,6 +150,7 @@ int PreAssembler_ReplaceMacros(const char* input_file,const char* output_file) {
             num_macros++;
         } else if (in_macro) {
             /* if we are currently in a macro definition, append the line to the value */
+            printf("Appending %s to macro %s at line %d \n", line, macros[num_macros].name, line_num);
             strcat(macros[num_macros].value, line);
         } else {
             /* Iterate through each word of the line */
@@ -158,13 +159,18 @@ int PreAssembler_ReplaceMacros(const char* input_file,const char* output_file) {
                 /* Check if the word matches a macro name */
                 for (i = 0; i < num_macros; i++) {
                     if (PreAssembler_CompareStrings_IgnoreSpace(word, macros[i].name) == 0) {
+                        word = malloc(strlen(macros[i].value) + 1);
                         /* Replace the word with the corresponding macro value */
+                        printf("Replacing %s with %s at line %d \n", word, macros[i].value, line_num);
                         strcpy(word, macros[i].value);
                         break;
                     }
                 }
                 /* write the word to the output file */
-                fprintf(output, "%s ", word);
+                if(!isspace(word[strlen(word) - 1]))
+                    fprintf(output, "%s ", word);
+                else
+                    fprintf(output, "%s" , word);    
                 word = strtok(NULL, " ");
             }
         }
