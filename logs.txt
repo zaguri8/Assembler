@@ -1,0 +1,126 @@
+==344== Memcheck, a memory error detector
+==344== Copyright (C) 2002-2013, and GNU GPL'd, by Julian Seward et al.
+==344== Using Valgrind-3.10.1 and LibVEX; rerun with -h for copyright info
+==344== Command: ./my_assembler ./examples/success_example_1/success_input_1.as
+==344== Parent PID: 19
+==344== 
+==344== Conditional jump or move depends on uninitialised value(s)
+==344==    at 0x405ABC: verify_operands (parser.c:888)
+==344==    by 0x406067: parse_sentence (parser.c:1035)
+==344==    by 0x401ACB: ExecuteInitialEntry (initial_entry.c:334)
+==344==    by 0x400F87: main (main.c:49)
+==344==  Uninitialised value was created by a heap allocation
+==344==    at 0x4843B44: malloc (in /usr/lib/valgrind/vgpreload_memcheck-arm64-linux.so)
+==344== 
+==344== Source and destination overlap in strncpy(0xfff00033a, 0xfff00033b, 2)
+==344==    at 0x48471D0: strncpy (in /usr/lib/valgrind/vgpreload_memcheck-arm64-linux.so)
+==344== 
+==344== Conditional jump or move depends on uninitialised value(s)
+==344==    at 0x4846E4C: strlen (in /usr/lib/valgrind/vgpreload_memcheck-arm64-linux.so)
+==344==  Uninitialised value was created by a heap allocation
+==344==    at 0x4843B44: malloc (in /usr/lib/valgrind/vgpreload_memcheck-arm64-linux.so)
+==344== 
+==344== Conditional jump or move depends on uninitialised value(s)
+==344==    at 0x403C80: is_alphanumeric (parser.c:108)
+==344==    by 0x40407B: is_symbol_operand (parser.c:220)
+==344==    by 0x40579B: get_jump_operands (parser.c:805)
+==344==    by 0x40591B: verify_operands (parser.c:849)
+==344==    by 0x406067: parse_sentence (parser.c:1035)
+==344==    by 0x401ACB: ExecuteInitialEntry (initial_entry.c:334)
+==344==    by 0x400F87: main (main.c:49)
+==344==  Uninitialised value was created by a heap allocation
+==344==    at 0x4843B44: malloc (in /usr/lib/valgrind/vgpreload_memcheck-arm64-linux.so)
+==344== 
+==344== Conditional jump or move depends on uninitialised value(s)
+==344==    at 0x403970: strcmp_lower (parser.c:26)
+==344==    by 0x403BAF: is_saved_word (parser.c:86)
+==344==    by 0x404097: is_symbol_operand (parser.c:221)
+==344==    by 0x40579B: get_jump_operands (parser.c:805)
+==344==    by 0x40591B: verify_operands (parser.c:849)
+==344==    by 0x406067: parse_sentence (parser.c:1035)
+==344==    by 0x401ACB: ExecuteInitialEntry (initial_entry.c:334)
+==344==    by 0x400F87: main (main.c:49)
+==344==  Uninitialised value was created by a heap allocation
+==344==    at 0x4843B44: malloc (in /usr/lib/valgrind/vgpreload_memcheck-arm64-linux.so)
+==344== 
+==344== Conditional jump or move depends on uninitialised value(s)
+==344==    at 0x403150: ExecuteSecondEntry (secondary_entry.c:478)
+==344==    by 0x400FB7: main (main.c:52)
+==344==  Uninitialised value was created by a heap allocation
+==344==    at 0x4843B44: malloc (in /usr/lib/valgrind/vgpreload_memcheck-arm64-linux.so)
+==344== 
+==344== Conditional jump or move depends on uninitialised value(s)
+==344==    at 0x403218: ExecuteSecondEntry (secondary_entry.c:504)
+==344==    by 0x400FB7: main (main.c:52)
+==344==  Uninitialised value was created by a heap allocation
+==344==    at 0x4843B44: malloc (in /usr/lib/valgrind/vgpreload_memcheck-arm64-linux.so)
+==344== 
+==344== Conditional jump or move depends on uninitialised value(s)
+==344==    at 0x4848020: strcmp (in /usr/lib/valgrind/vgpreload_memcheck-arm64-linux.so)
+==344==  Uninitialised value was created by a heap allocation
+==344==    at 0x4843B44: malloc (in /usr/lib/valgrind/vgpreload_memcheck-arm64-linux.so)
+==344== 
+==344== Conditional jump or move depends on uninitialised value(s)
+==344==    at 0x4846F5C: strcpy (in /usr/lib/valgrind/vgpreload_memcheck-arm64-linux.so)
+==344==  Uninitialised value was created by a stack allocation
+==344==    at 0x4024FC: encode_register (secondary_entry.c:223)
+==344== 
+==344== Conditional jump or move depends on uninitialised value(s)
+==344==    at 0x4846F68: strcpy (in /usr/lib/valgrind/vgpreload_memcheck-arm64-linux.so)
+==344==  Uninitialised value was created by a stack allocation
+==344==    at 0x4024FC: encode_register (secondary_entry.c:223)
+==344== 
+==344== Conditional jump or move depends on uninitialised value(s)
+==344==    at 0x4846E3C: strlen (in /usr/lib/valgrind/vgpreload_memcheck-arm64-linux.so)
+==344==  Uninitialised value was created by a stack allocation
+==344==    at 0x4024FC: encode_register (secondary_entry.c:223)
+==344== 
+==344== Conditional jump or move depends on uninitialised value(s)
+==344==    at 0x4847120: strncpy (in /usr/lib/valgrind/vgpreload_memcheck-arm64-linux.so)
+==344==  Uninitialised value was created by a heap allocation
+==344==    at 0x4843B44: malloc (in /usr/lib/valgrind/vgpreload_memcheck-arm64-linux.so)
+==344== 
+==344== Conditional jump or move depends on uninitialised value(s)
+==344==    at 0x484715C: strncpy (in /usr/lib/valgrind/vgpreload_memcheck-arm64-linux.so)
+==344==  Uninitialised value was created by a heap allocation
+==344==    at 0x4843B44: malloc (in /usr/lib/valgrind/vgpreload_memcheck-arm64-linux.so)
+==344== 
+==344== Conditional jump or move depends on uninitialised value(s)
+==344==    at 0x4847130: strncpy (in /usr/lib/valgrind/vgpreload_memcheck-arm64-linux.so)
+==344==  Uninitialised value was created by a stack allocation
+==344==    at 0x4024FC: encode_register (secondary_entry.c:223)
+==344== 
+==344== Conditional jump or move depends on uninitialised value(s)
+==344==    at 0x484800C: strcmp (in /usr/lib/valgrind/vgpreload_memcheck-arm64-linux.so)
+==344==  Uninitialised value was created by a stack allocation
+==344==    at 0x4024FC: encode_register (secondary_entry.c:223)
+==344== 
+==344== Conditional jump or move depends on uninitialised value(s)
+==344==    at 0x4848028: strcmp (in /usr/lib/valgrind/vgpreload_memcheck-arm64-linux.so)
+==344==  Uninitialised value was created by a stack allocation
+==344==    at 0x4024FC: encode_register (secondary_entry.c:223)
+==344== 
+==344== Conditional jump or move depends on uninitialised value(s)
+==344==    at 0x403858: convert_binary_to_base_2_special (converters.c:127)
+==344==    by 0x402D7F: create_object_file (secondary_entry.c:392)
+==344==    by 0x4033CB: ExecuteSecondEntry (secondary_entry.c:544)
+==344==    by 0x400FB7: main (main.c:52)
+==344==  Uninitialised value was created by a stack allocation
+==344==    at 0x4024FC: encode_register (secondary_entry.c:223)
+==344== 
+==344== 
+==344== HEAP SUMMARY:
+==344==     in use at exit: 10,216 bytes in 60 blocks
+==344==   total heap usage: 66 allocs, 6 frees, 10,262 bytes allocated
+==344== 
+==344== LEAK SUMMARY:
+==344==    definitely lost: 0 bytes in 0 blocks
+==344==    indirectly lost: 0 bytes in 0 blocks
+==344==      possibly lost: 0 bytes in 0 blocks
+==344==    still reachable: 10,216 bytes in 60 blocks
+==344==         suppressed: 0 bytes in 0 blocks
+==344== Reachable blocks (those to which a pointer was found) are not shown.
+==344== To see them, rerun with: --leak-check=full --show-leak-kinds=all
+==344== 
+==344== For counts of detected and suppressed errors, rerun with: -v
+==344== ERROR SUMMARY: 107 errors from 17 contexts (suppressed: 0 from 0)
