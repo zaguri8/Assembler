@@ -740,7 +740,7 @@ int get_jump_operands(sentence *parsed, char *line_with_offset,
   while (line_with_offset[i] != '(') i++;
   while (!isspace(line_with_offset[i])) i--;
   i++;
-  while(line_with_offset[i] != '(') {
+  while (line_with_offset[i] != '(') {
     op_direct[j] = line_with_offset[i];
     i++;
     j++;
@@ -748,8 +748,9 @@ int get_jump_operands(sentence *parsed, char *line_with_offset,
   op_direct[j] = '\0';
   strcpy(parsed->operand_1, op_direct);
   i++;
+  i = skip_spaces(line_with_offset, i);
   for (j = 0; j < strlen(line_with_offset) && line_with_offset[i] != ',' &&
-         !isspace(line_with_offset[i]);) {
+              !isspace(line_with_offset[i]);) {
     op_a[j] = line_with_offset[i];
     i++;
     j++;
@@ -757,6 +758,7 @@ int get_jump_operands(sentence *parsed, char *line_with_offset,
   while (line_with_offset[i] != ',') i++;
   op_a[j] = '\0';
   i++;
+  i = skip_spaces(line_with_offset, i);
   strcpy(parsed->jump_param_1, op_a);
   j = 0;
   for (; j < strlen(line_with_offset) && line_with_offset[i] != ')' &&
@@ -765,6 +767,7 @@ int get_jump_operands(sentence *parsed, char *line_with_offset,
     i++;
     j++;
   }
+  i = skip_spaces(line_with_offset, i);
   while (line_with_offset[i] != ')') {
     i++;
   }
@@ -774,23 +777,42 @@ int get_jump_operands(sentence *parsed, char *line_with_offset,
   strcpy(parsed->jump_param_2, op_b);
 
   if (atoi(parsed->jump_param_1) || strcmp(parsed->jump_param_1, "0") == 0) {
-    convert_dec_to_x_bit_binary(atoi(parsed->jump_param_1), 3,
-                                parsed->jump_param_1);
+    strcpy(parsed->jump_param_1_type, IMMEDIATE_OPERAND_TYPE);
+    parsed->jump_param_1_type[2] = '\0';
   } else if (((parsed->jump_param_1[0] == '#') &&
               (atoi(parsed->jump_param_1 + 1) ||
                strcmp(parsed->jump_param_1 + 1, "0") == 0))) {
-    convert_dec_to_x_bit_binary(atoi(parsed->jump_param_1 + 1), 3,
-                                parsed->jump_param_1);
+    int k;            
+    strcpy(parsed->jump_param_1_type, IMMEDIATE_OPERAND_TYPE);
+    parsed->jump_param_1_type[2] = '\0';
+    for (k = 0; k < strlen(parsed->jump_param_1); k++) {
+      parsed->jump_param_1[k] = parsed->jump_param_1[k + 1];
+    }
+  } else if (parsed->jump_param_1[0] == 'r') {
+    strcpy(parsed->jump_param_1_type, REGISTER_OPERAND_TYPE);
+    parsed->jump_param_1_type[2] = '\0';
+  } else {
+    strcpy(parsed->jump_param_1_type, DIRECT_OPERAND_TYPE);
+    parsed->jump_param_1_type[2] = '\0';
   }
 
   if (atoi(parsed->jump_param_2) || strcmp(parsed->jump_param_2, "0") == 0) {
-    convert_dec_to_x_bit_binary(atoi(parsed->jump_param_2), 3,
-                                parsed->jump_param_2);
+    strcpy(parsed->jump_param_2_type, IMMEDIATE_OPERAND_TYPE);
   } else if ((parsed->jump_param_2[0] == '#') &&
              (atoi(parsed->jump_param_2 + 1) ||
               strcmp(parsed->jump_param_2 + 1, "0") == 0)) {
-    convert_dec_to_x_bit_binary(atoi(parsed->jump_param_2 + 1), 3,
-                                parsed->jump_param_2);
+    int k;
+    strcpy(parsed->jump_param_2_type, IMMEDIATE_OPERAND_TYPE);
+    parsed->jump_param_2_type[2] = '\0';
+    for (k = 0; k < strlen(parsed->jump_param_2); k++) {
+      parsed->jump_param_2[k] = parsed->jump_param_2[k + 1];
+    }
+  } else if (parsed->jump_param_2[0] == 'r') {
+    strcpy(parsed->jump_param_2_type, REGISTER_OPERAND_TYPE);
+    parsed->jump_param_2_type[2] = '\0';
+  } else {
+    strcpy(parsed->jump_param_2_type, DIRECT_OPERAND_TYPE);
+    parsed->jump_param_2_type[2] = '\0';
   }
 
   strcpy(parsed->dest_operand_type, JUMP_OPERAND_TYPE);
@@ -799,10 +821,7 @@ int get_jump_operands(sentence *parsed, char *line_with_offset,
   parsed->immediate_operand_b = FALSE;
   parsed->immediate_operand_a = FALSE;
   parsed->num_of_operands = 1;
-  printf("Symbol: %s\n", parsed->symbol);
-  printf("op_a:\t\top_b\t\top_direct\n");
-  printf("%s\t\t%s\t\t%s\n", parsed->jump_param_1, parsed->jump_param_2, parsed->operand_1);
-
+  free(op_direct);
   free(op_a);
   free(op_b);
   return (i);
@@ -822,8 +841,11 @@ void verify_operands(sentence *parsed, char *line, int last_position,
   int temp_operand_type_a;
   int temp_operand_type_b;
   char temp_word[MAX_SYMBOL_SIZE];
-  if ((strstr(line, "(") != NULL || strstr(line, ")") != NULL) &&
-      !parsed->is_jump) {
+  int has_parentesis = (strstr(line, "(") != NULL || strstr(line, ")") != NULL);
+  if (parsed->is_jump && !has_parentesis) {
+    parsed->is_jump = FALSE;
+  }
+  if (has_parentesis && !parsed->is_jump) {
     fprintf(stderr,
             "Error in line %d - invalid instruction parentesis in none jump "
             "command\n",
@@ -932,7 +954,6 @@ void verify_operands(sentence *parsed, char *line, int last_position,
     convert_dec_to_x_bit_binary(temp_operand_type_b, 3,
                                 parsed->dest_operand_type);
   }
-
   return;
 }
 

@@ -157,7 +157,6 @@ void add_string_to_data_table(sentence *curr)
 
         convert_ascii_value_to_10_bit_binary(curr->string[i], new_memory_word->bits);
         new_memory_word->address = DC;
-
         if (data_tail)
         {
             data_tail->next = new_memory_word;

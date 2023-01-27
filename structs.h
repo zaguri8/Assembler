@@ -71,7 +71,6 @@ typedef struct sentence {
     int guidance_command; /* enum: EXTERN / ENTRY / NUM (=DATA)  / STRING  */
     int is_symbol;
     int is_jump;
-    char jump_operand[MAX_SYMBOL_SIZE];
     char symbol[MAX_SYMBOL_SIZE];
     char opcode[MAX_OPCODE_SIZE];
     int num_of_operands; /* 0 if no operands, 1 if destiantion, 2 if if both destination and source*/
@@ -81,6 +80,8 @@ typedef struct sentence {
     char operand_2[MAX_SYMBOL_SIZE]; /* for variables, registers */
     char jump_param_1[MAX_SYMBOL_SIZE];
     char jump_param_2[MAX_SYMBOL_SIZE];
+    char jump_param_1_type[3]; /* 0, 1, 2 */ /*  symbol, immediate, register  */
+    char jump_param_2_type[3]; /* 0, 1, 2*/ /*  symbol, immediate, register  */
     int immediate_operand_a; /* when we have "#" */
     int immediate_operand_b; /* when we have "#" */
     char string[MAX_STRING_SIZE]; /* if guidance_command  = .string, check for it's value in this field */

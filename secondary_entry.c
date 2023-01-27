@@ -12,7 +12,7 @@
 #define EXTERNAL_ARE "01"
 #define RELOCATABLE_ARE "10"
 #define MAX_FILE_NAME_SIZE 100
-#define BASE_2_SPECIAL_NUMBER_MAX_DIGITS 10
+#define BASE_2_SPECIAL_NUMBER_MAX_DIGITS 14
 #define OBJECT_FILE_EXTENSION ".ob"
 #define EXTERN_FILE_EXTENSION ".ext"
 #define ENTRY_FILE_EXTENSION ".ent"
@@ -76,15 +76,12 @@ symbol_line *get_symbol_line_from_symbol_table(char *symbol) {
 
 /* Encode direct operand into code table */
 void encode_direct_operand(char *oper) {
-  char arr[9];
+  char arr[13];
   memory_word *new_memory_word = create_new_memory_word();
   symbol_line *sl = get_symbol_line_from_symbol_table(oper);
-  printf("Address: %d, bits: %s ARE: %s (line %d)\n", ic_second_pass, arr,
-         RELOCATABLE_ARE, line_number);
-  printf("Symbol: %s, address: %d (line %d)\n", oper, sl->address, line_number);
   if (sl) {
     new_memory_word->address = ic_second_pass;
-    convert_dec_to_x_bit_binary(sl->address, 9, arr);
+    convert_dec_to_x_bit_binary(sl->address, 13, arr);
     strcpy(new_memory_word->bits, arr);
     strcat(new_memory_word->bits, RELOCATABLE_ARE);
     add_item_to_code_list(new_memory_word);
@@ -94,10 +91,10 @@ void encode_direct_operand(char *oper) {
 
 /* Encode immediate operand into code table */
 void encode_immediate_operand(int oper) {
-  char arr[9];
+  char arr[13];
   memory_word *new_memory_word = create_new_memory_word();
   new_memory_word->address = ic_second_pass;
-  convert_dec_to_x_bit_binary(oper, 9, arr);
+  convert_dec_to_x_bit_binary(oper, 13, arr);
   strcpy(new_memory_word->bits, arr);
   strcat(new_memory_word->bits, ABSOLUTE_ARE);
   add_item_to_code_list(new_memory_word);
@@ -108,7 +105,7 @@ void encode_immediate_operand(int oper) {
 void encode_extern_operand() {
   memory_word *new_memory_word = create_new_memory_word();
   new_memory_word->address = ic_second_pass;
-  strcpy(new_memory_word->bits, "00000000");
+  strcpy(new_memory_word->bits, "000000000000");
   strcat(new_memory_word->bits, EXTERNAL_ARE);
   add_item_to_code_list(new_memory_word);
   ic_second_pass++;
@@ -116,13 +113,38 @@ void encode_extern_operand() {
 
 /* Encode jump_ops into code table */
 int encode_jump(sentence *currsentence) {
-  char *regs[3];
-  regs[0] = currsentence->jump_param_1;
-  regs[1] = currsentence->jump_param_2;
-  if (!(handle_direct_operands(currsentence->jump_operand))) {
-    return 0;
+  char *params[3];
+
+  if (strcmp(currsentence->jump_param_1_type, REGISTER_OPERAND_TYPE) == 0 &&
+      strcmp(currsentence->jump_param_2_type, REGISTER_OPERAND_TYPE) == 0) {
+    params[0] = currsentence->jump_param_1;
+    params[1] = currsentence->jump_param_2;
+    encode_register(params, "both");
+  } else if (strcmp(currsentence->jump_param_1_type,
+                    REGISTER_OPERAND_TYPE) == 0) {
+    params[0] = currsentence->jump_param_1;
+    params[1] = "NONE";
+    encode_register(params, "source");
+  } else if (strcmp(currsentence->jump_param_2_type,
+                    REGISTER_OPERAND_TYPE) == 0) {
+    params[0] = "NONE";
+    params[1] = currsentence->jump_param_2;
+    encode_register(params, "destination");
   }
-  encode_register(regs, "both");
+
+  if (strcmp(currsentence->jump_param_1_type, DIRECT_OPERAND_TYPE) == 0) {
+    encode_direct_operand(currsentence->jump_param_1);
+  } else if (strcmp(currsentence->jump_param_1_type,
+                    IMMEDIATE_OPERAND_TYPE) == 0) {
+    encode_immediate_operand(atoi(currsentence->jump_param_1));
+  }
+
+  if (strcmp(currsentence->jump_param_2_type, DIRECT_OPERAND_TYPE) == 0) {
+    encode_direct_operand(currsentence->jump_param_2);
+  } else if (strcmp(currsentence->jump_param_2_type,
+                    IMMEDIATE_OPERAND_TYPE) == 0) {
+    encode_immediate_operand(atoi(currsentence->jump_param_2));
+  }
   return 1;
 }
 
@@ -175,9 +197,16 @@ void encode_instruction(sentence *curr) {
   int i;
   memory_word *new_memory_word = create_new_memory_word();
   new_memory_word->address = ic_second_pass;
+
+  if (curr->is_jump) {
+    strcpy(new_memory_word->bits, curr->jump_param_1_type);
+    strcpy(new_memory_word->bits, curr->jump_param_2_type);
+  } else {
+    strcpy(new_memory_word->bits, "0000"); /* 4 empty bits no params */
+  }
   for (i = 0; i < OPCODES_TABLE_LENGTH; i++) {
     if (strcmp(opcodes_table[i].opcode, curr->opcode) == 0) {
-      strcpy(new_memory_word->bits, opcodes_table[i].binary_val);
+      strcat(new_memory_word->bits, opcodes_table[i].binary_val);
       break;
     }
   }
@@ -261,7 +290,7 @@ void combine_filename_with_new_file_extension(char *filename,
   char copy_of_filename[MAX_FILE_NAME_SIZE];
   strcpy(copy_of_filename, filename);
   filename_prefix = strtok(copy_of_filename, ".");
-  strcpy(extension_filename, filename_prefix);
+  strcpy(extension_filename - 1, filename_prefix);
   strcat(extension_filename, extension);
   strcpy(output_filename, extension_filename);
 }
@@ -273,12 +302,9 @@ int open_second_pass_output_files() {
             input_filename);
     return 0;
   }
-  printf("Opened input file named: %s\n", input_filename);
-  printf("File names:\n%s\n%s\n%s\n", object_filename, extern_filename,
-         intern_filename);
-  object_fd = fopen(object_filename, "wr");
-  extern_fd = fopen(extern_filename, "wr");
-  intern_fd = fopen(intern_filename, "wr");
+  object_fd = fopen(object_filename, "w");
+  extern_fd = fopen(extern_filename, "w");
+  intern_fd = fopen(intern_filename, "w");
   if (!(object_fd && extern_fd && intern_fd)) {
     fprintf(stderr,
             "ERROR: Could not open for write one or more of the assembler "
@@ -332,46 +358,50 @@ void ExecuteSecondEntry(char *filename) {
       }
     } else { /* is instruction sentence */
       encode_instruction(current_sentence);
-      if (current_sentence->num_of_operands ==
-          2) { /* instruction sentence with 2 operands */
-        /* encode source operand */
-        if (strcmp(current_sentence->source_operand_type,
-                   IMMEDIATE_OPERAND_TYPE) == 0) {
-          encode_immediate_operand(current_sentence->immediate_operand_a);
-        } else if (strcmp(current_sentence->source_operand_type,
-                          DIRECT_OPERAND_TYPE) == 0) {
-          if (!(handle_direct_operands(current_sentence->operand_1))) {
-            break;
+      if (current_sentence->is_jump == 1) {
+        encode_jump(current_sentence);
+      } else {
+        if (current_sentence->num_of_operands ==
+            2) { /* instruction sentence with 2 operands */
+          /* encode source operand */
+          if (strcmp(current_sentence->source_operand_type,
+                     IMMEDIATE_OPERAND_TYPE) == 0) {
+            encode_immediate_operand(current_sentence->immediate_operand_a);
+          } else if (strcmp(current_sentence->source_operand_type,
+                            DIRECT_OPERAND_TYPE) == 0) {
+            if (!(handle_direct_operands(current_sentence->operand_1))) {
+              break;
+            }
+          } else { /* is register delivery method */
+            char *register_names[2];
+            register_names[1] = "NONE";
+            register_names[0] = current_sentence->operand_1;
+            encode_register(register_names, "source");
           }
-        } else { /* is register delivery method */
-          char *register_names[2];
-          register_names[1] = "NONE";
-          register_names[0] = current_sentence->operand_1;
-          encode_register(register_names, "source");
         }
-      }
-      if (current_sentence->num_of_operands == 1 ||
-          current_sentence->num_of_operands ==
-              2) { /* instruction sentence with 1 operand */
-        /* encode destination operand */
-        if (strcmp(current_sentence->dest_operand_type,
-                   IMMEDIATE_OPERAND_TYPE) == 0) {
-          encode_immediate_operand(current_sentence->immediate_operand_b);
-        } else if (strcmp(current_sentence->dest_operand_type,
-                          DIRECT_OPERAND_TYPE) == 0) {
-          if (!(handle_direct_operands(current_sentence->operand_2))) {
-            break;
+        if (current_sentence->num_of_operands == 1 ||
+            current_sentence->num_of_operands ==
+                2) { /* instruction sentence with 1 operand */
+          /* encode destination operand */
+          if (strcmp(current_sentence->dest_operand_type,
+                     IMMEDIATE_OPERAND_TYPE) == 0) {
+            encode_immediate_operand(current_sentence->immediate_operand_b);
+          } else if (strcmp(current_sentence->dest_operand_type,
+                            DIRECT_OPERAND_TYPE) == 0) {
+            if (!(handle_direct_operands(current_sentence->operand_2))) {
+              break;
+            }
+          } else if (strcmp(current_sentence->dest_operand_type,
+                            JUMP_OPERAND_TYPE) == 0) {
+            if (!(encode_jump(current_sentence))) {
+              break;
+            }
+          } else { /* is register delivery method */
+            char *register_names[2];
+            register_names[0] = "NONE";
+            register_names[1] = current_sentence->operand_2;
+            encode_register(register_names, "destination");
           }
-        } else if (strcmp(current_sentence->dest_operand_type,
-                          JUMP_OPERAND_TYPE) == 0) {
-          if (!(encode_jump(current_sentence))) {
-            break;
-          }
-        } else { /* is register delivery method */
-          char *register_names[2];
-          register_names[0] = "NONE";
-          register_names[1] = current_sentence->operand_2;
-          encode_register(register_names, "destination");
         }
       }
     }

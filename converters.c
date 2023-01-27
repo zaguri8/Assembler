@@ -27,13 +27,9 @@ s2_special_entry s2t [] = {
         {1, "/"},
 };
 
-binary_to_s2_special bin_to_2_special [] = {
-        {"00", "."},
-        {"01", "/"},
-};
+
 
 int special_2_table_size = sizeof(s2t)/sizeof(s2t[0]);
-int bin_to_2_special_table_size = sizeof(bin_to_2_special)/sizeof(bin_to_2_special[0]);
 
 /* Converts a digit to a special 2 character */
 char * digit_to_char_special_2(int digit){
@@ -119,17 +115,17 @@ void convert_base_2_to_base_2_special(int num, char * result){
 
 void convert_binary_to_base_2_special(char binary_address[14], char * result) {
     int i, k;
-    char two_chars[3];
-    for (i = 0; i < 14; i+=2 ) {
-        strncpy(two_chars, binary_address+i, 2);
-        two_chars[2] = '\0';
-        for (k=0; k < bin_to_2_special_table_size; k++) {
-            if (strcmp(two_chars, bin_to_2_special[k].binary) == 0) {
+    char one_char[2];
+    for (i = 0; i < 14; i+=1 ) {
+        strncpy(one_char, binary_address+i, 1);
+        one_char[1] = '\0';
+        for (k=0; k < special_2_table_size; k++) {
+            if (atoi(one_char) == s2t[k].digit) {
                 if (i == 0) {
-                    strcpy(result, bin_to_2_special[k].character);
+                    strcpy(result, s2t[k].character);
                 }
                 else {
-                    strcat(result, bin_to_2_special[k].character);
+                    strcat(result, s2t[k].character);
                 }
                 break;
             }
